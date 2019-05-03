@@ -391,6 +391,275 @@ public class recycle extends JFrame {
 			return false;
 	}
 	
+    private void readKart()//Karttan gelen bilgileri okumaya yarayan method
+	{
+    	//Combo box'un içindeki her þeyi sil
+    	portList.removeAllItems();
+		portNames = SerialPort.getCommPorts();
+		for(int i = 0; i < portNames.length; i++)
+		{
+			portList.addItem(portNames[i].getSystemPortName());
+		}
+		
+		//Port boþ mu 
+		if (portList.getItemCount() == 0)
+		{
+			JOptionPane.showMessageDialog(null, "KART OKUYUCU TAKILI DEÐÝL","UYARI",JOptionPane.WARNING_MESSAGE);
+		}
+		else
+		{
+			port = SerialPort.getCommPort(portList.getSelectedItem().toString()); // device name TODO: must be changed
+			port.setComPortParameters(9600, 8, 1, 0); // default connection settings for Arduino
+			port.setComPortTimeouts(SerialPort.TIMEOUT_WRITE_BLOCKING, 0, 0); // block until bytes can be written
+			
+			if (port.openPort()) {
+				portControl = true;
+				System.out.println("Port is open :)");
+				myTimer=new Timer();
+	            gorev =new TimerTask() {
+
+	                   @Override
+	                   public void run()
+	                   {
+	                	    Scanner data = new Scanner(port.getInputStream());
+		           			if(data.hasNextLine())
+		           			{
+		           				portData = data.nextLine();
+		           				System.out.println(portData);
+		           				if(portData.equals("true"))
+		           				{
+		           					if(menu.equals("satis"))
+		           					{
+		           						String query = "INSERT INTO `satis` (`kard_id`,`satilan_urunler`, `puan`) VALUES ('"+"sdfgsfs"+"', '"+alinanUrunler.getText()+"','"+Integer.parseInt(txtToplamPuan.getText())+"')";
+		        			       	 	executeSQlQuery(query, "SATIÞ",1);
+		           					}
+		           					else if(menu.equals("kisiler"))
+		           					{
+		           						String query = "INSERT INTO `user` (`ad`, `soyad`, `tc`, `kart_id`) VALUES ('"+txtAd.getText().trim()+"', '"+txtSoyad.getText().trim()+"', '"+txtTC.getText().trim()+"', '"+txtKartID.getText().trim()+"')";
+		           		           	 	executeSQlQuery(query, "EKLEME",2);
+		           					}
+		           					else if(menu.equals("kisiler_guncelle"))
+		           					{
+		           						menu = "kisiler";
+		           						System.out.println("guncelle");
+		           						String query = "UPDATE `user` SET `ad` = '"+txtAd.getText().trim()+"', `soyad` = '"+txtSoyad.getText().trim()+"', `tc` = "+txtTC.getText().trim()+", `kart_id` = '"+txtKartID.getText().trim()+"' WHERE `tc` = "+ TC;
+		           		            	executeSQlQuery(query, "GÜNCELLEME",2);
+		           					}
+		           				}
+		           				else if(portData.equals("false"))
+		           				{
+		           					JOptionPane.showMessageDialog(null, "KART ÝÞLEMÝ GERÇEKLEÞTÝRÝLEMEDÝ LÜTFEN TEKRAR DENEYÝNÝZ","HATA",JOptionPane.ERROR_MESSAGE);
+		           				}
+		           				else if(portData.equals("Z"))
+		           				{
+		           					if(menu.equals("satis"))
+		           					{
+		           						satisValueSetup();
+		           					}
+		           					else if(menu.equals("kisiler"))
+		           					{
+		           						kisilerValueSetup();
+		           					}
+		           				}
+		           				else if(portData.contains("/"))
+		           				{
+		           					String[] ardunioData = null;
+		           					ardunioData = portData.split("/");
+		           					//Karttaki puan sayý mý? (Oynama yapýlmýþ mý)
+		           					/*try
+		           					{ 
+		           				        Integer.parseInt(ardunioData[0]);
+		           				        mevcutPuan = ardunioData[0];
+		           				        veriGetir(ardunioData[1]);
+				           				txtKartID.setText(ardunioData[1]);
+		           				    }
+		           					catch(NumberFormatException e)
+		           					{ 
+		           						JOptionPane.showMessageDialog(null, "BU KARTTAKÝ PUAN OKUNAMAMIÞTIR");
+		           				    }*/
+		           					if(menu.equals("satis"))
+		           					{
+		           						try
+			           					{ 
+			           				        Integer.parseInt(ardunioData[0]);
+			           				        mevcutPuan = ardunioData[0];
+			           				        veriGetir(ardunioData[1]);
+					           				txtKartID.setText(ardunioData[1]);
+			           				    }
+			           					catch(NumberFormatException e)
+			           					{ 
+			           						JOptionPane.showMessageDialog(null, "BU KARTTAKÝ PUAN OKUNAMAMIÞTIR","HATA",JOptionPane.ERROR_MESSAGE);
+			           				    }
+		           					}
+		           					else if(menu.equals("kisiler"))
+		           					{
+		           						mevcutPuan = ardunioData[0];
+		           						veriGetir(ardunioData[1]);
+				           				txtKartID.setText(ardunioData[1]);
+		           					}
+		           				}
+		           				else
+		           				{
+		           					JOptionPane.showMessageDialog(null, "LÜTFEN OKUTTUNUZ KARTI KONTROL EDÝNÝZ","HATA",JOptionPane.ERROR_MESSAGE);
+		           					System.out.println("Farklý veri =>" + portData);
+		           				}
+		           			}
+	                   }
+	            };
+	            myTimer.schedule(gorev,0,100);
+			}
+			else
+			{
+				JOptionPane.showMessageDialog(null, "PORT AÇILAMADI","HATA",JOptionPane.ERROR_MESSAGE);
+			}
+		}
+	}
+    
+    private void veriGetir(String data)//Veritabanýndan bilgi getiren method
+	{
+       String query = "SELECT * FROM `user` WHERE kart_id = '" + data +"'"; //Veri tabanýndan okutulan kartý bul
+       
+       try 
+       {
+           rs = st.executeQuery(query);
+           if(rs.next())//Kart veritabanýna kayýtlý ise
+           {
+        	   ID = "" +  rs.getInt("id");
+        	   ad = rs.getString("ad");
+        	   soyad = rs.getString("soyad");
+        	   TC = "" + rs.getInt("tc");
+        	   kartID = rs.getString("kart_id");
+        	   txtAd.setText(ad);
+        	   txtSoyad.setText(soyad);
+        	   txtKartID.setText(kartID);
+        	   if(menu.equals("satis"))
+        	   {
+        		   txtMevcutPuan.setText(mevcutPuan);
+        	   }
+        	   else if(menu.equals("kisiler"))
+        	   {
+        		   txtTC.setText(TC);
+        	   }
+           }
+           else if(menu.equals("satis"))//Kart veritabanýna kayýtlý deðil ise
+           {
+        	   //Temizle butonunu çalýþtýr
+        	   btnSatisTemizle.doClick();
+        	   JOptionPane.showMessageDialog(null, "BU KARTA KAYITLI BÝR KÝÞÝ BULUNAMAMIÞTIR","UYARI",JOptionPane.WARNING_MESSAGE);
+           }
+           /*else if(x == 1) //Kart veritabanýna kayýtlý deðil ise
+           {
+        	   //Temizle butonunu çalýþtýr
+        	   btnSatisTemizle.doClick();
+        	   JOptionPane.showMessageDialog(null, "BU KARTA KAYITLI BÝR KÝÞÝ BULUNAMAMIÞTIR");
+           }*/
+           
+       } 
+       catch (Exception e)
+       {
+           e.printStackTrace();
+       }
+	}
+    
+    private void sendData(String send)//Verileri ardunio'ya gönderen method
+	{
+		try {
+			System.out.println(send);
+			port.getOutputStream().write(send.getBytes());
+			port.getOutputStream().flush();
+			Thread.sleep(1000);
+		} catch (Exception e1) {
+			JOptionPane.showMessageDialog(null, "ÝÞLEM GERÇEKLEÞTÝRÝLEMEDÝ","HATA",JOptionPane.ERROR_MESSAGE);
+			e1.printStackTrace();
+		}
+	}
+    
+	private void search()//Arama butonuna basýldýðýnda veritabanýnda bilgileri arayan method
+	{
+		String query1;
+		String query2 = "";
+		//gelen deðer 1 ise kiþiler sayfasýnda arama yap
+		if(menu.equals("kisiler"))
+		{
+			query1 = "SELECT * FROM `user` WHERE ";
+			if(!txtAd.getText().trim().equals(""))
+			{
+				query2 += "ad = '" + txtAd.getText().trim() + "'";
+			}
+			if(!txtSoyad.getText().trim().equals(""))
+			{
+				if(!query2.equals(""))
+				{
+					query2 += " AND "; 
+				}
+				query2 += "soyad = '"  + txtSoyad.getText().trim() + "'";
+			}
+			if(!txtTC.getText().trim().equals(""))
+			{
+				if(!query2.equals(""))
+				{
+					query2 += " AND "; 
+				}
+				query2 += "tc = '" + txtTC.getText().trim() + "'";
+			}
+			if(!txtKartID.getText().trim().equals(""))
+			{
+				if(!query2.equals(""))
+				{
+					query2 += " AND "; 
+				}
+				query2 += "kart_id = '" + txtKartID.getText().trim() + "'";
+			}
+			//System.out.println(query1 + query2);
+			//veri tabanýnda böyle bir veri var mý
+			if(var_mi(query1 + query2))
+			{
+				kisilerShow(query1 + query2);
+			}
+			else
+			{
+        		JOptionPane.showMessageDialog(null, "BÖYLE BÝR KÝÞÝ KAYITLI DEÐÝL","UYARI",JOptionPane.WARNING_MESSAGE);
+			}
+			
+		}
+		//gelen deðer 1 deðil ise ürünler sayfasýnda arama yap
+		else
+		{
+			query1 = "SELECT * FROM `urunler` WHERE ";
+			if(!txtUrunAd.getText().trim().equals(""))
+			{
+				query2 += "urunAd = '" + txtUrunAd.getText().trim() + "'";
+			}
+			if(!txtUrunOzellik.getText().trim().equals(""))
+			{
+				if(!query2.equals(""))
+				{
+					query2 += " AND "; 
+				}
+				query2 += "urunOzellik = '" + txtUrunOzellik.getText().trim() + "'";
+			}
+			if(!txtUrunPuan.getText().trim().equals(""))
+			{
+				if(!query2.equals(""))
+				{
+					query2 += " AND "; 
+				}
+				query2 += "puan = '" + txtUrunPuan.getText().trim() + "'";
+			}
+			//System.out.println(query1 + query2);
+			//veri tabanýnda böyle bir veri var mý
+			if(var_mi(query1 + query2))
+			{
+				urunlerShow(query1 + query2);
+			}
+			else
+			{
+        		JOptionPane.showMessageDialog(null, "BÖYLE BÝR ÜRÜN KAYITLI DEÐÝL","UYARI",JOptionPane.WARNING_MESSAGE);
+			}
+			
+		}
+	}
+	
 	private void satisSetup()//Satiþ sayfasýnýn oluþturulduðu method
 	{
 		//Tüm nesneler sil

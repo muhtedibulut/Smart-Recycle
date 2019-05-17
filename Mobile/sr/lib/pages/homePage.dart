@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:sr/main.dart';
 import 'package:sr/pages/varliklarim.dart';
+import 'package:sr/pages/kullanimlarim.dart';
+import 'package:sr/pages/sonIslemler.dart';
+import 'package:sr/pages/bank.dart';
+import 'package:sr/pages/profile.dart';
+import 'package:sr/pages/QR.dart';
 
 class appBar extends AppBar {
-  appBar({Key key, Widget title})
+
+  appBar({Key key, Widget title,BuildContext ctxt})
       : super(
             key: key,
             title: title,
@@ -11,9 +17,9 @@ class appBar extends AppBar {
             actions: <Widget>[
               Expanded(
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
-                    IconButton(
+                    /*IconButton(
                       icon: Icon(Icons.settings),
                       onPressed: () {},
                     ),
@@ -24,14 +30,21 @@ class appBar extends AppBar {
                     IconButton(
                       icon: Icon(Icons.notifications_none),
                       onPressed: () {},
-                    ),
+                    ),*/
                     IconButton(
                       icon: Icon(Icons.person),
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.push(
+                          ctxt,
+                          new MaterialPageRoute(builder: (ctxt) => new profile()),
+                        );
+                      },
                     ),
                     IconButton(
                       icon: Icon(Icons.power_settings_new),
-                      onPressed: () {},
+                      onPressed: () {
+
+                      },
                     ),
                   ],
                 ),
@@ -52,6 +65,11 @@ class _homePageState extends State<homePage> {
   PageThree three;
   PageFour four;
   varliklarim vrlk;
+  kullanimlarim klnm;
+  sonIslemler islm;
+  MyHomePage bank;
+  ScanScreen qr;
+
   List<Widget> pages;
   Widget currentPage;
 
@@ -92,8 +110,12 @@ class _homePageState extends State<homePage> {
     three = PageThree();
     four = PageFour();
     vrlk = varliklarim();
+    klnm = kullanimlarim();
+    islm = sonIslemler();
+    bank = MyHomePage();
+    qr = ScanScreen();
 
-    pages = [vrlk, two, three, four];
+    pages = [vrlk, qr, klnm, islm];
 
     currentPage = vrlk;
 
@@ -107,7 +129,8 @@ class _homePageState extends State<homePage> {
       onWillPop: _willPopCallback,
       child: Scaffold(
         appBar: appBar(
-            //title: Text("SR"),
+          ctxt: context,
+            title: Text("SR"),
             ),
         body: PageStorage(
           child: currentPage,
@@ -116,6 +139,7 @@ class _homePageState extends State<homePage> {
         bottomNavigationBar: BottomNavigationBar(
           currentIndex: currentTab,
           type: BottomNavigationBarType.fixed,
+          fixedColor: Colors.pink,
           //Tüm butonların eşit olarak sabitlenmesini sağlar *EKSTRA BottomNavigationBarType.shifting
           onTap: (int index) {
             setState(() {
@@ -125,12 +149,12 @@ class _homePageState extends State<homePage> {
           },
           items: <BottomNavigationBarItem>[
             BottomNavigationBarItem(
-              icon: Icon(Icons.account_balance_wallet),
+              icon: Icon(Icons.assessment),
               title: Text('Varlıklarım'),
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.account_balance),
-              title: Text("Hesaplarım"),
+              icon: Icon(Icons.camera_alt),
+              title: Text("QR"),
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.swap_horiz),

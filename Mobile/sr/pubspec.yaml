@@ -30,6 +30,7 @@ dependencies:
   intl: ^0.15.8
   charts_flutter: ^0.6.0
   pie_chart: ^0.8.0
+  flutter_circular_chart:
 
 dev_dependencies:
   build_runner: ^1.0.0

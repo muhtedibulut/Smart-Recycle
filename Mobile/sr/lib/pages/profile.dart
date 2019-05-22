@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:async';
+import 'package:sr/util/text.dart';
 
 class profile extends StatefulWidget {
   @override
@@ -9,7 +10,6 @@ class profile extends StatefulWidget {
 }
 
 class _profileState extends State<profile> {
-
   TextEditingController nameController = new TextEditingController();
   TextEditingController surnameController = new TextEditingController();
   TextEditingController tcController = new TextEditingController();
@@ -34,7 +34,7 @@ class _profileState extends State<profile> {
             title: Text('Enter sms Code'),
             content: TextField(
               onChanged: (value) {
-                this.smsCode = value;
+                //this.smsCode = value;
               },
             ),
             contentPadding: EdgeInsets.all(10.0),
@@ -42,6 +42,7 @@ class _profileState extends State<profile> {
               new FlatButton(
                 child: Text('Done'),
                 onPressed: () {
+                  Navigator.of(context).pop();
                   FirebaseAuth.instance.currentUser().then((user) {
                     if (user != null) {
                       Navigator.of(context).pop();
@@ -58,17 +59,38 @@ class _profileState extends State<profile> {
         });
   }*/
 
-  getProfile()
-  {
-    http.get("http://muhtedibulut.com/SR?tc=" + "21").then((cevap)
-    {
+  void _showDialog(String dialog) {
+    // flutter defined function
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        // return object of type Dialog
+        return AlertDialog(
+          title: new Text("PROFİL GÜNCELLEME"),
+          content: new Text(dialog),
+          actions: <Widget>[
+            // usually buttons at the bottom of the dialog
+            new FlatButton(
+              child: new Text("TAMAM"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  getProfile() {
+    http.get("http://muhtedibulut.com/SR?tc=" + "1").then((cevap) {
       print(cevap.statusCode);
       print(cevap.body.length);
       var jsonData = json.decode(cevap.body);
       print(jsonData);
       print(jsonData["hata"]);
       bool error = jsonData["hata"];
-      if(!error)//Hata yok ise
+      if (!error) //Hata yok ise
       {
         id = jsonData["data"]["id"];
         name = jsonData["data"]["name"];
@@ -78,7 +100,6 @@ class _profileState extends State<profile> {
         phone = jsonData["data"]["phone"];
         password = jsonData["data"]["password"];
 
-
         print(jsonData["data"]);
 
         nameController.text = name;
@@ -87,31 +108,29 @@ class _profileState extends State<profile> {
         phoneController.text = phone;
         emailController.text = email;
         passwordController.text = password;
-      }
-      else
-      {
+      } else {
         print(jsonData["hata"]);
       }
     });
   }
 
-  updateProfile()
-  {
+  updateProfile() {
     var url = "http://muhtedibulut.com/SR/profile.php";
-    var body = json.encode({"user_id" : id,
-      "name" : nameController.text,
-      "surname" : surnameController.text,
-      "tc" : tcController.text,
-      "phone" : phoneController.text,
-      "email" : emailController.text,
-      "password" : passwordController.text});
+    var body = json.encode({
+      "user_id": id,
+      "name": nameController.text,
+      "surname": surnameController.text,
+      "tc": tcController.text,
+      "phone": phoneController.text,
+      "email": emailController.text,
+      "password": passwordController.text
+    });
 
-    Map<String,String> headers = {
-      'Content-type' : 'application/json',
+    Map<String, String> headers = {
+      'Content-type': 'application/json',
       'Accept': 'application/json',
     };
-    http.put(url,body:body).then((cevap)
-    {
+    http.put(url, body: body).then((cevap) {
       //veri = cevap.body;
       //print(veri.toString());
 
@@ -120,7 +139,12 @@ class _profileState extends State<profile> {
       print(body);
       print(jsonData["mesaj"]);
       bool error = jsonData["hata"];
-
+      if (!error) //Hata yok ise
+      {
+        _showDialog("GÜNCELLEME İŞLEMİNİZ BAŞARIYLA GERÇEKLEŞTİ");
+      } else {
+        _showDialog("ERROR\nGÜNCELLEME İŞLEMİ BAŞARISIZ");
+      }
     });
 
     /*http.put("http://muhtedibulut.com/SR/index.php",
@@ -139,7 +163,7 @@ class _profileState extends State<profile> {
       var jsonData = json.decode(cevap.body);
       print(jsonData);
     });*/
-    
+
     /*http.get("http://muhtedibulut.com/SR/index.php?user_id=21"
         "&name=${nameController.text}"
         "&surname=${surnameController}"
@@ -158,11 +182,137 @@ class _profileState extends State<profile> {
     });*/
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: new AppBar(
+        title: new Text('Profile'),
+        backgroundColor: Colors.black,
+      ),
+      body: Padding(
+        padding: EdgeInsets.all(1.0),
+        child: Container(
+          decoration: BoxDecoration(
+              // en arka plana renk verme
+              gradient: LinearGradient(
+            colors: <Color>[Colors.black87, Colors.black87],
+          )),
+          child: ListView(
+            children: <Widget>[
+              Container(
+                decoration: BoxDecoration(
+                  // içerdeki kutuya köşe yuvarlama
+                  color: Colors.black38,
+                  borderRadius: BorderRadius.circular(20.0),
+                ),
+                padding: EdgeInsets.all(10.0), // iç kutu boyutları
+                margin: EdgeInsets.all(40.0), // iç kutu boyutları
+                child: Column(
+                  children: <Widget>[
+                    Container(
+                      // logo altındaki yazı
+                      child: Text(
+                        "BİLGİLERİM",
+                        style: TextStyle(
+                          fontSize: 35.0,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                    text1(
+                      textBox: "AD",
+                      controller: nameController,
+                      icon: Icon(Icons.person),
+                      textType: TextInputType.text,
+                      obscure: false,
+                      labelText: "AD",
+                    ),
+                    text1(
+                      textBox: "SOYAD",
+                      controller: surnameController,
+                      icon: Icon(Icons.person),
+                      textType: TextInputType.text,
+                      obscure: false,
+                      labelText: "SOYAD",
+                    ),
+                    text1(
+                      textBox: "TC",
+                      controller: tcController,
+                      icon: Icon(Icons.person),
+                      textType: TextInputType.number,
+                      obscure: false,
+                      labelText: "TC",
+                    ),
+                    text1(
+                      textBox: "TELEFON",
+                      controller: phoneController,
+                      icon: Icon(Icons.phone),
+                      textType: TextInputType.phone,
+                      obscure: false,
+                      labelText: "TELEFON",
+                    ),
+                    text1(
+                      textBox: "E-MAİL",
+                      controller: emailController,
+                      icon: Icon(Icons.email),
+                      textType: TextInputType.emailAddress,
+                      obscure: false,
+                      labelText: "E-MAİL",
+                    ),
+                    text1(
+                      textBox: "PAROLA",
+                      controller: passwordController,
+                      icon: Icon(Icons.lock),
+                      textType: TextInputType.text,
+                      obscure: true,
+                      labelText: "PAROLA",
+                    ),
+                    Row(
+                      // boşluk bırakma
+                      children: <Widget>[
+                        Padding(
+                          padding: EdgeInsets.all(10.0),
+                        )
+                      ],
+                    ),
+                    ButtonTheme(
+                      // GRADİANT RENKLİ KAYIT OL / GİRİŞ YAP BUTONU
+                      minWidth: 300.0,
+                      height: 50.0,
+                      buttonColor: Colors.transparent,
+                      child: Container(
+                        decoration: const BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: <Color>[Colors.blue, Colors.pink],
+                          ),
+                          borderRadius: BorderRadius.all(Radius.circular(30.0)),
+                        ),
+                        child: RaisedButton(
+                          onPressed: () {
+                            updateProfile();
+                          },
+                          child: Text(
+                            "GÜNCELLE",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          textColor: Colors.white,
+                          shape: new RoundedRectangleBorder(
+                              borderRadius: new BorderRadius.circular(30.0)),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+    /*Scaffold(
       appBar: new AppBar(
         title: new Text('Profile'),
       ),
@@ -220,7 +370,7 @@ class _profileState extends State<profile> {
                         icon: const Icon(Icons.lock),
                         labelText: 'Parola',
                         hintText: "xxxx")),
-                /*Padding(
+                Padding(
                   padding: const EdgeInsets.all(20.0),
                 ),
                 RaisedButton(
@@ -232,7 +382,7 @@ class _profileState extends State<profile> {
                   onPressed: () {
                     getProfile();
                   },
-                ),*/
+                ),
                 Padding(
                   padding: const EdgeInsets.all(20.0),
                 ),
@@ -250,8 +400,6 @@ class _profileState extends State<profile> {
             )
         ),
       ),
-    );
+    );*/
   }
-
-
 }

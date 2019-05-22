@@ -3,7 +3,12 @@ import 'package:flutter/cupertino.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:sr/pages/homePage.dart';
+import 'package:sr/pages/parola1.dart';
+import 'package:sr/pages/time.dart';
+import 'package:sr/pages/ptime.dart';
+import 'package:sr/pages/time2.dart';
 
+//clippath
 void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
@@ -22,7 +27,6 @@ class loginPage extends StatefulWidget {
 }
 
 class _loginPageState extends State<loginPage> {
-
   TextEditingController nameController = new TextEditingController();
   TextEditingController surnameController = new TextEditingController();
   TextEditingController tcController = new TextEditingController();
@@ -45,12 +49,11 @@ class _loginPageState extends State<loginPage> {
           actions: <Widget>[
             // usually buttons at the bottom of the dialog
             new FlatButton(
-              child: new Text("OK"),
+              child: new Text("TAMAM"),
               onPressed: () {
                 Navigator.of(context).pop();
               },
             ),
-
           ],
         );
       },
@@ -60,51 +63,47 @@ class _loginPageState extends State<loginPage> {
   //Telefondaki geri tuşuna bastığında
   Future<bool> _willPopCallback() async {
     return showDialog(
-        context: context, builder: (context) =>AlertDialog(
-      title: Text("UYGULAMADAN ÇIKMAK İSTİYOR MUSUNUZ?"),
-      actions: <Widget>[
-        FlatButton(
-          child: Text("HAYIR"),
-          onPressed: () => Navigator.pop(context, false),//Uuygulamada Kal
-        ),
-        FlatButton(
-          child: Text("EVET"),
-          onPressed: () => Navigator.pop(context, true),//Uygulamadan Çık
-        )
-      ],
-    ));
+        context: context,
+        builder: (context) => AlertDialog(
+              title: Text("UYGULAMADAN ÇIKMAK İSTİYOR MUSUNUZ?"),
+              actions: <Widget>[
+                FlatButton(
+                  child: Text("HAYIR"),
+                  onPressed: () =>
+                      Navigator.pop(context, false), //Uuygulamada Kal
+                ),
+                FlatButton(
+                  child: Text("EVET"),
+                  onPressed: () =>
+                      Navigator.pop(context, true), //Uygulamadan Çık
+                )
+              ],
+            ));
   }
 
-  loginService(BuildContext ctxt)
-  {
-    http.get("http://muhtedibulut.com/SR/login.php?tc=" + tc).then((cevap)
-    {
+  loginService(BuildContext ctxt) {
+    http.get("http://muhtedibulut.com/SR/login.php?tc=" + tc).then((cevap) {
       print(cevap.statusCode);
       print(cevap.body.length);
       var jsonData = json.decode(cevap.body);
       print(jsonData);
       print(jsonData["hata"]);
       bool error = jsonData["hata"];
-      if(!error)//Hata yok ise
-          {
+      if (!error) //Hata yok ise
+      {
         print(jsonData["data"]["password"]);
         String a = jsonData["data"]["password"];
-        if (a == password)
-        {
+        if (a == password) {
           print("Home page");
           //_showDialog("BİLGİLER DOĞRU");
           Navigator.pushReplacement(
             ctxt,
             new MaterialPageRoute(builder: (ctxt) => new homePage()),
           );
-        }
-        else
-        {
+        } else {
           _showDialog("KULLANICI ADINIZI VEYA PAROLANIZI KONTROL EDİNİZ");
         }
-      }
-      else
-      {
+      } else {
         _showDialog("ERROR\nKULLANICI ADINIZI VEYA PAROLANIZI KONTROL EDİNİZ");
       }
       /*setState(()
@@ -115,22 +114,22 @@ class _loginPageState extends State<loginPage> {
     print("Buton Basildi");
   }
 
-  registerService()
-  {
+  registerService() {
     var url = "http://muhtedibulut.com/SR/index.php";
-    var body = {"name" : nameController.text,
-      "surname" : surnameController.text,
-      "tc" : tcController.text,
-      "phone" : phoneController.text,
-      "email" : emailController.text,
-      "password" : passwordController.text};
+    var body = {
+      "name": nameController.text,
+      "surname": surnameController.text,
+      "tc": tcController.text,
+      "phone": phoneController.text,
+      "email": emailController.text,
+      "password": passwordController.text
+    };
 
-    Map<String,String> headers = {
-      'Content-type' : 'application/json',
+    Map<String, String> headers = {
+      'Content-type': 'application/json',
       'Accept': 'application/json',
     };
-    http.post(url,body:body).then((cevap)
-    {
+    http.post(url, body: body).then((cevap) {
       //veri = cevap.body;
       //print(veri.toString());
 
@@ -139,12 +138,9 @@ class _loginPageState extends State<loginPage> {
       print(body);
       print(jsonData["mesaj"]);
       bool error = jsonData["hata"];
-      if(error)
-      {
+      if (error) {
         _showDialog("İŞLEM GERÇEKLEŞTİRİLEMEDİ");
-      }
-      else
-      {
+      } else {
         _showDialog("İŞLEM BAŞARIYLA GERÇEKLEŞTİRİLDİ");
       }
     });
@@ -153,8 +149,6 @@ class _loginPageState extends State<loginPage> {
 
   //////////******************************************************************
 
-
-
   @override
   void initState() {
     super.initState();
@@ -162,7 +156,8 @@ class _loginPageState extends State<loginPage> {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope( //Baqck Tuşu
+    return WillPopScope(
+      //Baqck Tuşu
       onWillPop: _willPopCallback,
       child: Scaffold(
         body: _tabbarLS(context),
@@ -196,11 +191,17 @@ class _loginPageState extends State<loginPage> {
   // body -> tabbarSL -> appbar kısmında tab seçenekleri
   Widget yap_tabbar() {
     return AppBar(
-      backgroundColor: Colors.blueGrey,
+      backgroundColor: Colors.black,
       title: TabBar(
         tabs: [
-          new Tab(icon: new Icon(Icons.account_circle)),
-          new Tab(icon: new Icon(Icons.person_add)),
+          new Tab(
+            child: Text("Giriş"),
+          ),
+          new Tab(
+            child: Text("Kayıt Ol"),
+          ),
+          //new Tab(icon: new Icon(Icons.account_circle)),
+          //new Tab(icon: new Icon(Icons.person_add)),
         ],
         indicatorColor: Colors.white,
       ),
@@ -222,11 +223,13 @@ class _loginPageState extends State<loginPage> {
             //height: 700.0,
             decoration: BoxDecoration(
               // beyaz card köşe yuvarlama
-              color: Colors.white,
+              color: Colors.black38,
               borderRadius: BorderRadius.circular(20.0),
             ),
-            padding: EdgeInsets.all(10.0), // boyutlandırma
-            margin: EdgeInsets.all(40.0), // boyutlandırma
+            padding: EdgeInsets.all(10.0),
+            // boyutlandırma
+            margin: EdgeInsets.all(40.0),
+            // boyutlandırma
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
@@ -245,58 +248,49 @@ class _loginPageState extends State<loginPage> {
                 Container(
                   // logo altındaki yazı
                   child: Text(
-                    "Giriş Yap",
+                    "Giriş",
                     style: TextStyle(
                       fontSize: 35.0,
                       fontWeight: FontWeight.bold,
-                      color: Colors.black54,
+                      color: Colors.white,
                     ),
                   ),
                 ),
-                Row( // boşluk bırakma
-                  children: <Widget>[
-                    Padding(
-                      padding: EdgeInsets.all(0.0),
-                    )
-                  ],
-                ),
-                TextField(
+                /*TextField(
                   keyboardType: TextInputType.number,
                   controller: tcController,
                   decoration: InputDecoration(
                     //prefixIcon: Icon(Icons.person),
+                    //suffixIcon: Icon(Icons.lock), //Iconu sağ tarafa atar
                     icon: const Icon(Icons.person),
                     labelText: "TC",
                     hintText: "12345678900",
+                    //contentPadding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
+                    //border: OutlineInputBorder(borderRadius: BorderRadius.circular(32.0)),
                     hintStyle: TextStyle(
                       fontSize: 13.0,
                       height: 1.5,
                     ),
                   ),
+                ),*/
+
+                text(
+                  textBox: "TC",
+                  controller: tcController,
+                  icon: Icon(Icons.person),
+                  textType: TextInputType.number,
+                  obscure: false,
                 ),
-                Row( // boşluk bırakma
-                  children: <Widget>[
-                    Padding(
-                      padding: EdgeInsets.all(5.0),
-                    )
-                  ],
-                ),
-                TextField(
-                  keyboardType: TextInputType.text,
+                text(
+                  textBox: "Parola",
                   controller: passwordController,
-                  obscureText: true,
-                  decoration: InputDecoration(
-                    //prefixIcon: Icon(Icons.lock),
-                    icon: const Icon(Icons.lock),
-                    labelText: "Parola",
-                    hintText: "xxxxxx",
-                    hintStyle: TextStyle(
-                      fontSize: 13.0,
-                      height: 1.5,
-                    ),
-                  ),
+                  icon: Icon(Icons.lock),
+                  //Icons.lock,
+                  textType: TextInputType.text,
+                  obscure: true,
                 ),
-                Row( // boşluk bırakma
+                Row(
+                  // boşluk bırakma
                   children: <Widget>[
                     Padding(
                       padding: EdgeInsets.all(5.0),
@@ -309,10 +303,14 @@ class _loginPageState extends State<loginPage> {
                   child: FlatButton(
                     onPressed: () {
                       //sifremiunuttum();
+                      Navigator.push(
+                        context,
+                        new MaterialPageRoute(builder: (ctxt) => new parola1()),
+                      );
                     },
                     child: Text(
-                      "Şifremi Unuttum",
-                      style: TextStyle(fontSize: 13.0),
+                      "Parolamı Unuttum",
+                      style: TextStyle(fontSize: 13.0, color: Colors.white),
                     ),
                   ),
                 ),
@@ -324,6 +322,31 @@ class _loginPageState extends State<loginPage> {
                     )
                   ],
                 ),
+                /*Container(
+                  //  ŞİFREMİ UNUTTUM flat button
+                  alignment: Alignment.centerRight,
+                  child: FlatButton(
+                    onPressed: () {
+                      //sifremiunuttum();
+                      Navigator.push(
+                        context,
+                        new MaterialPageRoute(builder: (ctxt) => new time()),
+                      );
+                    },
+                    child: Text(
+                      "Parolamı Unuttum1",
+                      style: TextStyle(fontSize: 13.0, color: Colors.white),
+                    ),
+                  ),
+                ),
+                Row(
+                  // boşluk bırakma
+                  children: <Widget>[
+                    Padding(
+                      padding: EdgeInsets.all(5.0),
+                    )
+                  ],
+                ),*/
                 ButtonTheme(
                   // GİRİŞ YAP BUTONU GRADİANT RENKLİ
                   minWidth: 200.0,
@@ -333,7 +356,8 @@ class _loginPageState extends State<loginPage> {
                     decoration: const BoxDecoration(
                       // butonun rengi
                       gradient: LinearGradient(
-                        colors: <Color>[Colors.black87, Colors.black87],
+                        //colors: <Color>[Colors.black87, Colors.black87],
+                        colors: <Color>[Colors.blue, Colors.pink],
                       ),
                       borderRadius: BorderRadius.all(Radius.circular(30.0)),
                     ),
@@ -369,17 +393,17 @@ class _loginPageState extends State<loginPage> {
   Widget register(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        // en arka plana renk verme
+          // en arka plana renk verme
           gradient: LinearGradient(
-            colors: <Color>[Colors.black87, Colors.black87],
-          )),
+        colors: <Color>[Colors.black87, Colors.black87],
+      )),
       child: ListView(
         children: <Widget>[
           Container(
             child: Container(
               decoration: BoxDecoration(
                 // içerdeki kutuya köşe yuvarlama
-                color: Colors.white,
+                color: Colors.black38,
                 borderRadius: BorderRadius.circular(20.0),
               ),
               padding: EdgeInsets.all(10.0), // iç kutu boyutları
@@ -401,159 +425,58 @@ class _loginPageState extends State<loginPage> {
                       style: TextStyle(
                         fontSize: 35.0,
                         fontWeight: FontWeight.bold,
-                        color: Colors.black54,
+                        color: Colors.white,
                       ),
                     ),
                   ),
-                  Row(
-                    // logodan sonra aşağı boşluk bırakma
-                    children: <Widget>[
-                      Padding(
-                        padding: EdgeInsets.all(0.0),
-                      )
-                    ],
-                  ),
-                  TextField(
-                    keyboardType: TextInputType.text,
+                  text(
+                    textBox: "Ad",
                     controller: nameController,
-                    decoration: InputDecoration(
-                      //prefixIcon: Icon(Icons.person),
-                      icon: const Icon(Icons.person),
-                      hintText: "Ad",
-                      hintStyle: TextStyle(
-                        fontSize: 13.0,
-                        height: 1.5,
-                      ),
-                    ),
+                    icon: Icon(Icons.person),
+                    textType: TextInputType.text,
+                    obscure: false,
                   ),
-                  Row(
-                    // boşluk bırakma
-                    children: <Widget>[
-                      Padding(
-                        padding: EdgeInsets.all(5.0),
-                      )
-                    ],
-                  ),
-                  TextField(
-                    keyboardType: TextInputType.text,
+                  text(
+                    textBox: "Soyad",
                     controller: surnameController,
-                    decoration: InputDecoration(
-                      //prefixIcon: Icon(Icons.person),
-                      icon: const Icon(Icons.person),
-                      hintText: "Soyad",
-                      hintStyle: TextStyle(
-                        fontSize: 13.0,
-                        height: 1.5,
-                      ),
-                    ),
+                    icon: Icon(Icons.person),
+                    textType: TextInputType.text,
+                    obscure: false,
                   ),
-                  Row(
-                    // boşluk bırakma
-                    children: <Widget>[
-                      Padding(
-                        padding: EdgeInsets.all(5.0),
-                      )
-                    ],
-                  ),
-                  TextField(
-                    keyboardType: TextInputType.number,
+                  text(
+                    textBox: "TC",
                     controller: tcController,
-                    decoration: InputDecoration(
-                      //prefixIcon: Icon(Icons.person),
-                      icon: const Icon(Icons.person),
-                      hintText: "TC",
-                      hintStyle: TextStyle(
-                        fontSize: 13.0,
-                        height: 1.5,
-                      ),
-                    ),
+                    icon: Icon(Icons.person),
+                    textType: TextInputType.number,
+                    obscure: false,
                   ),
-                  Row(
-                    // boşluk bırakma
-                    children: <Widget>[
-                      Padding(
-                        padding: EdgeInsets.all(5.0),
-                      )
-                    ],
-                  ),
-                  TextField(
-                    keyboardType: TextInputType.phone,
+                  text(
+                    textBox: "Telefon",
                     controller: phoneController,
-                    decoration: InputDecoration(
-                      //prefixIcon: Icon(Icons.mail_outline),
-                      icon: const Icon(Icons.call),
-                      hintText: "Telefon",
-                      hintStyle: TextStyle(
-                        fontSize: 13.0,
-                        height: 1.5,
-                      ),
-                    ),
+                    icon: Icon(Icons.call),
+                    textType: TextInputType.phone,
+                    obscure: false,
                   ),
-                  Row(
-                    // boşluk bırakma
-                    children: <Widget>[
-                      Padding(
-                        padding: EdgeInsets.all(5.0),
-                      )
-                    ],
-                  ),
-                  TextField(
-                    keyboardType: TextInputType.emailAddress,
+                  text(
+                    textBox: "E-mail",
                     controller: emailController,
-                    obscureText: true,
-                    decoration: InputDecoration(
-                      //prefixIcon: Icon(Icons.lock_outline),
-                      icon: const Icon(Icons.email),
-                      hintText: "E-mail",
-                      hintStyle: TextStyle(
-                        fontSize: 13.0,
-                        height: 1.5,
-                      ),
-                    ),
+                    icon: Icon(Icons.email),
+                    textType: TextInputType.emailAddress,
+                    obscure: false,
                   ),
-                  Row(
-                    // boşluk bırakma
-                    children: <Widget>[
-                      Padding(
-                        padding: EdgeInsets.all(10.0),
-                      )
-                    ],
-                  ),
-                  TextField(
-                    keyboardType: TextInputType.text,
+                  text(
+                    textBox: "Parola",
                     controller: passwordController,
-                    obscureText: true,
-                    decoration: InputDecoration(
-                      //prefixIcon: Icon(Icons.lock_outline),
-                      icon: const Icon(Icons.lock),
-                      hintText: "Parola",
-                      hintStyle: TextStyle(
-                        fontSize: 13.0,
-                        height: 1.5,
-                      ),
-                    ),
+                    icon: Icon(Icons.lock),
+                    textType: TextInputType.text,
+                    obscure: true,
                   ),
-                  Row(
-                    // boşluk bırakma
-                    children: <Widget>[
-                      Padding(
-                        padding: EdgeInsets.all(10.0),
-                      )
-                    ],
-                  ),
-                  TextField(
-                    keyboardType: TextInputType.text,
+                  text(
+                    textBox: "Parola (Tekrar)",
                     controller: passwordAgainController,
-                    obscureText: true,
-                    decoration: InputDecoration(
-                      //prefixIcon: Icon(Icons.lock_outline),
-                      icon: const Icon(Icons.lock),
-                      hintText: "Parola (Tekrar)",
-                      hintStyle: TextStyle(
-                        fontSize: 13.0,
-                        height: 1.5,
-                      ),
-                    ),
+                    icon: Icon(Icons.lock),
+                    textType: TextInputType.text,
+                    obscure: true,
                   ),
                   Row(
                     // boşluk bırakma
@@ -571,7 +494,7 @@ class _loginPageState extends State<loginPage> {
                     child: Container(
                       decoration: const BoxDecoration(
                         gradient: LinearGradient(
-                          colors: <Color>[Colors.black87, Colors.black87],
+                          colors: <Color>[Colors.blue, Colors.pink],
                         ),
                         borderRadius: BorderRadius.all(Radius.circular(30.0)),
                       ),
@@ -599,7 +522,54 @@ class _loginPageState extends State<loginPage> {
       ),
     );
   }
-
-
 }
 
+class text extends StatelessWidget {
+  final textBox;
+  final controller;
+  final icon;
+  final textType;
+  final obscure;
+
+  const text(
+      {this.textBox, this.controller, this.icon, this.textType, this.obscure});
+
+  @override
+  Widget build(BuildContext context) {
+    return Theme(
+      data: Theme.of(context).copyWith(splashColor: Colors.transparent),
+      child: Column(
+        children: <Widget>[
+          Padding(
+            padding: EdgeInsets.all(8.0),
+          ),
+          TextField(
+            autofocus: false,
+            keyboardType: textType,
+            controller: controller,
+            obscureText: obscure,
+            decoration: InputDecoration(
+              filled: true,
+              fillColor: Colors.white,
+              prefixIcon: icon,
+              //icon: const Icon(Icons.lock),
+              hintText: textBox,
+              hintStyle: TextStyle(
+                fontSize: 10.0,
+                height: 1.5,
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: Colors.white),
+                borderRadius: BorderRadius.circular(25.7),
+              ),
+              enabledBorder: UnderlineInputBorder(
+                borderSide: BorderSide(color: Colors.white),
+                borderRadius: BorderRadius.circular(25.7),
+              ),
+            ),
+          )
+        ],
+      ),
+    );
+  }
+}

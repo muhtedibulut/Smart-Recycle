@@ -74,15 +74,15 @@ class _sonIslemlerState extends State<sonIslemler> {
           Text(
             "BİRİKİM",
             style: TextStyle(
-                fontSize: 25.0,
-                fontWeight: FontWeight.bold,
+                //fontSize: 20.0,
+                //fontWeight: FontWeight.bold,
                 color: Colors.white),
           ),
           Text(
             "ÖDEME",
             style: TextStyle(
-                fontSize: 25.0,
-                fontWeight: FontWeight.bold,
+                //fontSize: 20.0,
+                //fontWeight: FontWeight.bold,
                 color: Colors.white),
           ),
           //new Tab(icon: new Icon(Icons.account_circle)),

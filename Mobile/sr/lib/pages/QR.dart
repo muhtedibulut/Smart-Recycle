@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:barcode_scan/barcode_scan.dart';
 import 'dart:async';
 import 'package:flutter/services.dart';
+import 'package:sr/pages/homePage.dart';
 
 class ScanScreen extends StatefulWidget {
   @override
@@ -10,6 +11,35 @@ class ScanScreen extends StatefulWidget {
 
 class _ScanState extends State<ScanScreen> {
   String barcode = "";
+  homePage h =  homePage();
+
+  void _showDialog(String dialog) {
+    // flutter defined function
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        // return object of type Dialog
+        return AlertDialog(
+          title: new Text("QR"),
+          content: new Text(dialog),
+          actions: <Widget>[
+            // usually buttons at the bottom of the dialog
+            new FlatButton(
+              child: new Text("OK"),
+              onPressed: () {
+                Navigator.of(context).pop();
+                /*Navigator.pushReplacement(
+                  ctxt,
+                  new MaterialPageRoute(builder: (ctxt) => new homePage()),
+                );*/
+              },
+            ),
+
+          ],
+        );
+      },
+    );
+  }
 
   @override
   initState() {
@@ -50,16 +80,18 @@ class _ScanState extends State<ScanScreen> {
       setState(() => this.barcode = barcode);
     } on PlatformException catch (e) {
       if (e.code == BarcodeScanner.CameraAccessDenied) {
-        setState(() {
+        /*setState(() {
           this.barcode = 'The user did not grant the camera permission!';
-        });
+        });*/
+        setState(() =>_showDialog("KAMERA İZNİ VERİLMEDİ"));//);
       } else {
-        setState(() => this.barcode = 'Unknown error: $e');
+        setState(() => _showDialog("HATA"));//this.barcode = 'Unknown error: $e');
       }
     } on FormatException{
-      setState(() => this.barcode = 'null (User returned using the "back"-button before scanning anything. Result)');
+      //setState(() => this.barcode = 'null (User returned using the "back"-button before scanning anything. Result)');
+      setState(() => _showDialog("GERİ TUŞUNA BASILDI"));//this.barcode = '1');
     } catch (e) {
-      setState(() => this.barcode = 'Unknown error: $e');
+      setState(() => _showDialog("HATA"));//this.barcode = 'Unknown error: $e');
     }
   }
 
